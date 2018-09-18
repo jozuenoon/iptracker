@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime/pprof"
 	"strings"
 	"time"
 )
@@ -91,6 +92,18 @@ func getIPData(url string) (*ipData, error) {
 }
 
 func main() {
+
+	f, err := os.Create("iptrackertest.cpuprofile")
+	if err != nil {
+		panic(fmt.Sprintf("can't open file %s", err))
+	}
+	defer f.Close()
+	err = pprof.StartCPUProfile(f)
+	if err != nil {
+		panic(fmt.Sprintf("pprof returned error %s", err))
+	}
+	defer pprof.StopCPUProfile()
+
 	di, err := getIPData(*url)
 	if err != nil {
 		log.Println(di)
